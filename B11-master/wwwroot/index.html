@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Registration System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar" id="navbar">
+            <div class="logo">HRS</div>
+            <div class="nav-links">
+                <button id="loginBtn" class="nav-btn">Login</button>
+                <button id="registerBtn" class="nav-btn">Register</button>
+                <button id="adminPanelBtn" class="nav-btn hidden">Admin Panel</button>
+                <button id="logoutBtn" class="nav-btn hidden">Logout</button>
+            </div>
+        </nav>
+
+        <!-- Auth Forms Container -->
+        <div id="authForms" class="auth-container">
+            <div id="loginForm" class="form-container hidden">
+                <h2>Login</h2>
+                <form id="loginFormElement" onsubmit="handleLogin(event)">
+                    <div class="form-field">
+                        <input type="text"
+                               placeholder="Username"
+                               name="username"
+                               pattern="[a-zA-Z0-9._-]{3,50}"
+                               title="3-50 characters, letters, numbers, and .-_"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-field">
+                        <input type="password"
+                               placeholder="Password"
+                               name="password"
+                               pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}"
+                               title="At least 6 characters, one uppercase, one lowercase, and one number"
+                               required>
+                        <div class="password-strength"></div>
+                        <div class="error-message"></div>
+                    </div>
+                    <button type="submit" class="submit-btn">Login</button>
+                </form>
+            </div>
+
+            <div id="registerForm" class="form-container hidden">
+                <h2>Register</h2>
+                <form id="registerFormElement">
+                    <div class="form-field">
+                        <input type="text"
+                               placeholder="Username"
+                               name="username"
+                               pattern="[a-zA-Z0-9._-]{3,50}"
+                               title="3-50 characters, letters, numbers, and .-_"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-field">
+                        <input type="password"
+                               placeholder="Password"
+                               name="password"
+                               pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}"
+                               title="At least 6 characters, one uppercase, one lowercase, and one number"
+                               required>
+                        <div class="password-strength"></div>
+                        <div class="error-message"></div>
+                    </div>
+                    <button type="submit" class="submit-btn">Register</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Human Information Form -->
+        <div id="humanInfoForm" class="form-container hidden">
+            <h2>Personal Information</h2>
+            <form id="humanInfoFormElement" enctype="multipart/form-data">
+                <div class="form-group">
+                    <div class="form-field">
+                        <input type="text"
+                               placeholder="First Name"
+                               name="firstname"
+                               pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž]+"
+                               title="Must start with uppercase and contain only Lithuanian letters"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-field">
+                        <input type="text"
+                               placeholder="Last Name"
+                               name="lastname"
+                               pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž]+"
+                               title="Must start with uppercase and contain only Lithuanian letters"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="form-field">
+                        <input type="text"
+                               placeholder="Personal Code"
+                               name="personalcode"
+                               pattern="[3-6]\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])\d{4}"
+                               title="Valid Lithuanian personal code format"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-field">
+                        <input type="tel"
+                               placeholder="Phone Number"
+                               name="phonenumber"
+                               pattern="\+370\d{8}"
+                               title="Format: +370xxxxxxxx"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                </div>
+                <div class="form-field">
+                    <input type="email"
+                           placeholder="Email"
+                           name="email"
+                           pattern="[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)"
+                           title="Only gmail.com and yahoo.com domains are allowed"
+                           required>
+                    <div class="error-message"></div>
+                </div>
+
+                <div class="address-section">
+                    <h3>Address</h3>
+                    <div class="form-group">
+                        <div class="form-field">
+                            <input type="text"
+                                   placeholder="City"
+                                   name="city"
+                                   pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž\s-]+"
+                                   title="Must start with uppercase and contain only letters, spaces and hyphens"
+                                   required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="form-field">
+                            <input type="text"
+                                   placeholder="Street"
+                                   name="street"
+                                   pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž\s-]+"
+                                   title="Must start with uppercase and contain only letters, spaces and hyphens"
+                                   required>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-field">
+                            <input type="text"
+                                   placeholder="House Number"
+                                   name="housenumber"
+                                   pattern="[1-9]\d{0,3}[A-Za-z]?"
+                                   title="Number (1-9999) optionally followed by a letter"
+                                   required>
+                            <div class="error-message"></div>
+                        </div>
+                        <div class="form-field">
+                            <input type="text"
+                                   placeholder="Apartment Number (optional)"
+                                   name="apartmentnumber"
+                                   pattern="[1-9]\d{0,3}|^$"
+                                   title="Positive number or leave empty">
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-picture-section">
+                    <h3>Profile Picture</h3>
+                    <div class="form-field">
+                        <input type="file"
+                               id="profilePicture"
+                               name="profilePicture"
+                               accept="image/jpeg,image/jpg,image/png"
+                               required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div id="imagePreview" class="image-preview"></div>
+                </div>
+
+                <button type="submit" class="submit-btn">Save Information</button>
+            </form>
+        </div>
+
+        <!-- User Information Display -->
+        <div id="userInfoDisplay" class="info-container hidden">
+            <h2>Your Information</h2>
+            <div id="userInfoContent"></div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="admin-panel hidden">
+            <h2>Admin Panel</h2>
+            <div class="admin-controls">
+                <div class="search-box">
+                    <input type="text" id="adminUserSearch" placeholder="Search users...">
+                </div>
+                <div id="usersList" class="users-list">
+                    <!-- Users will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel Modal -->
+        <div id="adminPanelModal" class="modal hidden">
+            <div class="modal-content admin-panel-content">
+                <div class="modal-header">
+                    <h2>Admin Panel - Users List</h2>
+                    <button onclick="closeAdminPanel()" class="close-btn">&times;</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="modalUserSearch" placeholder="Search users...">
+                </div>
+                <div id="adminUsersList" class="users-list">
+                    <!-- Users will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+
+    <script src="js/validation.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/humanInfo.js"></script>
+    <script src="js/admin.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html> 

@@ -1,0 +1,24 @@
+@Baigiamasis_HostAddress = http://localhost:5283
+
+GET {{Baigiamasis_HostAddress}}/weatherforecast/
+Accept: application/json
+
+### Login
+POST {{Baigiamasis_HostAddress}}/Auth/login
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test123"
+}
+
+### Signup
+POST {{Baigiamasis_HostAddress}}/Auth/signup
+Content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test123"
+}
+
+###

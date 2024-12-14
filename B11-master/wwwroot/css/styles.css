@@ -1,0 +1,751 @@
+/* Root Variables */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --success-color: #2ecc71;
+    --warning-color: #f1c40f;
+    --background-color: #ecf0f1;
+    --text-color: #2c3e50;
+    --border-radius: 8px;
+    --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navigation */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: var(--border-radius);
+    margin-bottom: 2rem;
+    box-shadow: var(--box-shadow);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Button Styles */
+.btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.nav-btn {
+    composes: btn;
+    background-color: var(--secondary-color);
+    color: white;
+    margin-left: 1rem;
+}
+
+.nav-btn:hover {
+    background-color: #2980b9;
+}
+
+.submit-btn {
+    composes: btn;
+    width: 100%;
+    background-color: var(--secondary-color);
+    color: white;
+    padding: 1rem;
+}
+
+.edit-btn {
+    composes: btn;
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.delete-btn {
+    composes: btn;
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Form Styles */
+.form-container {
+    background-color: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    max-width: 600px;
+    margin: 2rem auto;
+    transition: var(--transition);
+}
+
+.form-field {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.form-field input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-field input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Validation Styles */
+.error-message {
+    position: absolute;
+    top: -20px;
+    left: 0;
+    color: var(--accent-color);
+    font-size: 0.75rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2px 4px;
+    border-radius: 3px;
+    z-index: 1;
+    transition: var(--transition);
+}
+
+input.invalid {
+    border-color: var(--accent-color);
+    background-color: #fff;
+}
+
+.password-strength {
+    height: 4px;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 2px;
+    transition: var(--transition);
+}
+
+.password-strength.weak { background-color: var(--accent-color); width: 33%; }
+.password-strength.fair { background-color: var(--warning-color); width: 66%; }
+.password-strength.strong { background-color: var(--success-color); width: 100%; }
+
+/* Profile Section */
+.profile-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.profile-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--secondary-color);
+    transition: var(--transition);
+}
+
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: var(--transition);
+    color: white;
+}
+
+.profile-image-container:hover .image-overlay {
+    opacity: 1;
+}
+
+.profile-image-container:hover .profile-image {
+    filter: brightness(70%);
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+}
+
+/* Notification Styles */
+.notification-bar {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    min-width: 300px;
+    max-width: 80%;
+    z-index: 9999;
+    font-weight: 500;
+    box-shadow: var(--box-shadow);
+    transition: top 0.3s ease-in-out;
+}
+
+.notification-bar.show {
+    top: 20px;
+}
+
+.notification-bar.hide {
+    top: -100px;
+}
+
+.notification-bar.success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.notification-bar.error {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Admin Panel Styles */
+.admin-panel {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-top: 2rem;
+}
+
+.user-card {
+    background: white;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.admin-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--border-radius);
+    font-size: 0.8rem;
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .form-group {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 1rem;
+    }
+
+    .notification-bar {
+        width: 90%;
+        min-width: auto;
+    }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Info Display Styles */
+.info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.info-row {
+    display: flex;
+    align-items: center;
+    padding: 0.8rem;
+    border-bottom: 1px solid #eee;
+    transition: var(--transition);
+    justify-content: space-between;
+}
+
+.info-row:hover {
+    background-color: #f8f9fa;
+}
+
+.info-row .info-content {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.info-label {
+    font-weight: bold;
+    width: 150px;
+    color: var(--primary-color);
+}
+
+.info-value {
+    flex: 1;
+    padding: 0 1rem;
+}
+
+.address-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 2px solid #eee;
+}
+
+.address-section h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+/* Enhanced Modal Styles */
+.modal-content {
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.cancel-btn {
+    background-color: #95a5a6;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.cancel-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* Enhanced Admin Panel Styles */
+.admin-panel-content {
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background: white;
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.user-card {
+    background: white;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-info h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.user-details {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Search Box Styles */
+.search-box {
+    margin-bottom: 1.5rem;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Enhanced Button Styles */
+.edit-btn {
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+}
+
+.edit-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.delete-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: var(--transition);
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* Animation Keyframes */
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Loading and Error States */
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+.error {
+    color: var(--accent-color);
+    padding: 1rem;
+    background: #fee;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.no-users {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: var(--border-radius);
+}
+
+/* Form Field Enhancements */
+.form-field {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.form-field label {
+    position: absolute;
+    top: -0.5rem;
+    left: 0.5rem;
+    background: white;
+    padding: 0 0.5rem;
+    color: var(--primary-color);
+    font-size: 0.8rem;
+}
+
+.form-field input:focus + label {
+    color: var(--secondary-color);
+}
+
+/* Navigation Buttons */
+.nav-links {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.nav-btn {
+    padding: 0.5rem 1.2rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.nav-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Special Nav Buttons */
+.nav-btn.admin-btn {
+    background-color: var(--primary-color);
+}
+
+.nav-btn.logout-btn {
+    background-color: var(--accent-color);
+}
+
+.nav-btn.admin-btn:hover {
+    background-color: #1a252f;
+}
+
+.nav-btn.logout-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Edit and Save Buttons */
+.edit-btn, .save-btn {
+    min-width: 60px;
+    padding: 0.5rem 1rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    text-align: center;
+    margin-left: 1rem;
+}
+
+.edit-btn:hover, .save-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+.save-btn {
+    background-color: var(--success-color);
+}
+
+.save-btn:hover {
+    background-color: #27ae60;
+}
+
+/* Modal Buttons */
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.modal-buttons button {
+    min-width: 80px;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.modal-buttons .submit-btn {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.modal-buttons .submit-btn:hover {
+    background-color: #27ae60;
+}
+
+.modal-buttons .cancel-btn {
+    background-color: #95a5a6;
+    color: white;
+}
+
+.modal-buttons .cancel-btn:hover {
+    background-color: #7f8c8d;
+}
+
+/* Form Submit Button */
+.form-container .submit-btn {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.form-container .submit-btn:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Update the delete button style in the admin panel */
+.user-card .delete-btn {
+    width: 24px;
+    height: 24px;
+    min-width: unset;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    padding: 0;
+    margin: 0;
+    transition: all 0.2s ease;
+    line-height: 1;
+}
+
+.user-card .delete-btn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* Update user card layout */
+.user-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+    background: white;
+    margin-bottom: 0.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    flex: 1;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+} 

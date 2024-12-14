@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baigiamasis", "B11-master\Baigiamasis.csproj", "{39AABCE7-2730-4045-9CA7-D4A035615554}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Baigiamasis_test", "Baigiamasis_test\Baigiamasis_test.csproj", "{2B521C87-B819-4B85-B573-7836FF93072F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{39AABCE7-2730-4045-9CA7-D4A035615554}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39AABCE7-2730-4045-9CA7-D4A035615554}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39AABCE7-2730-4045-9CA7-D4A035615554}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39AABCE7-2730-4045-9CA7-D4A035615554}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B521C87-B819-4B85-B573-7836FF93072F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B521C87-B819-4B85-B573-7836FF93072F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B521C87-B819-4B85-B573-7836FF93072F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B521C87-B819-4B85-B573-7836FF93072F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

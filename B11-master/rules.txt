@@ -1,0 +1,59 @@
+
+/*
+
+        * Simple and straightforward
+        * Easy to test (clear separation of concerns)
+        * Secure (proper authorization and validation)
+        * Maintainable (clear model structure)
+        * Ready for frontend integration (CORS configured)
+        * Remember to add appropriate unit tests for each component, focusing on:
+        * Model validation
+        * Authorization rules
+        * Business logic
+        * Data access
+        
+        
+
+
+
+        Žmogaus užregistravimo sistema
+        User informacija:
+        Username
+        * Password
+        * Salt
+        * Role
+        * Žmogaus Informacijos sąryšis
+        * Žmogaus informacija:
+        * Vardas
+        * Pavardė
+        * Asmens kodas
+        * Telefono numeris
+        * El. paštas
+        * Profilio nuotrauka
+        * Gyvenamoji vieta
+        * Gyvenamoji vieta:
+        * Miestas
+        * Gatvė
+        * Namo numeris
+        * Buto numeris
+        * Egzaminas
+        * Egzaminas:
+        * Eiga:
+        * The user must be able to register.
+        * Once registered, a User is created with the default role 'User'.
+        * User must be able to trigger information about him/herself where ALL fields are required (Human information), User must not be able to trigger information about 
+        * more than one person.
+        * There must be a different endpoint to update EACH of the fields, e.g. Name, ID number, phone number, city(cannot be updated to an empty field or 
+        * whitespace)
+        * When registering a person, it is mandatory to upload a profile picture, the size of the picture must be reduced to 200x200(if the picture is too small it will be stretched 
+        * to 200x200).
+        * It must be possible to retrieve all information about the uploaded person by their ID (the photo is returned as a byte array).
+        * User should not be able to update information of a person other than his own, for simplicity let's say that with each request "from the frontend" will come the User's ID.
+        * There must also be an 'Admin' role, which will be set via the database and will have an endpoint through which it can delete users by ID(deleting a user 
+        * delete the person's info as well)
+        * Offline only registration and login must be possible
+        * Authentication and Authorization is done with Json Web Tokens.
+        * Mssql database is used.
+        * Entity Framework is used.
+
+        */
