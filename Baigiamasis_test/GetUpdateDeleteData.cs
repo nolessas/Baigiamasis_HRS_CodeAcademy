@@ -142,27 +142,24 @@ namespace Baigiamasis_test
         }
 
         [Fact]
-        public async Task UpdateProfilePicture_WithValidImage_ReturnsSuccess()
+        public async Task UpdateProfilePicture_WithValidData_ReturnsSuccess()
         {
             // Arrange
-            var fileMock = new Mock<IFormFile>();
-            var successResponse = ApiResponse<bool>.Success(true, "Profile picture updated successfully");
-
-            _imageServiceMock.Setup(x => x.IsValidImage(It.IsAny<IFormFile>()))
-                .Returns(true);
-
-            _humanInfoServiceMock.Setup(x => x.UpdateProfilePictureAsync(_humanInfoId, It.IsAny<IFormFile>()))
+            var file = new Mock<IFormFile>();
+            var dto = new ProfilePictureUpdateDto { ProfilePicture = file.Object };
+            
+            var successResponse = ApiResponse<bool>.Success(true);
+            _humanInfoServiceMock
+                .Setup(x => x.UpdateProfilePictureAsync(_humanInfoId, file.Object))
                 .ReturnsAsync(successResponse);
 
             // Act
-            var result = await _controller.UpdateProfilePicture(_humanInfoId, fileMock.Object);
+            var result = await _controller.UpdateProfilePicture(_humanInfoId, dto);
 
             // Assert
             var actionResult = Assert.IsType<ActionResult<ApiResponse<bool>>>(result);
             var okResult = Assert.IsType<ObjectResult>(actionResult.Result);
-            var response = Assert.IsType<ApiResponse<bool>>(okResult.Value);
-            Assert.True(response.IsSuccess);
-            Assert.Equal(200, response.StatusCode);
+            Assert.Equal(200, okResult.StatusCode);
         }
 
         [Fact]

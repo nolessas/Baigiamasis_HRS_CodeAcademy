@@ -95,10 +95,10 @@ namespace Baigiamasis_test
                     userId))
                 .Returns(Task.FromResult(errorResponse));
 
-            // Setup image service mock to return true for valid image
+            // Setup image service mock to process the image
             _imageServiceMock
-                .Setup(x => x.IsValidImage(It.IsAny<IFormFile>()))
-                .Returns(true);
+                .Setup(x => x.ProcessProfileImageAsync(It.IsAny<IFormFile>()))
+                .ReturnsAsync(new byte[] { 1, 2, 3 }); // Return some dummy processed image data
 
             // Act
             var result = await _controller.Create(request);

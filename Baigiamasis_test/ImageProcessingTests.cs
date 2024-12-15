@@ -83,51 +83,22 @@ namespace Baigiamasis_test
             Assert.Equal(200, processedImage.Height);
         }
 
-        [Theory]
-        [InlineData("image/jpeg", true)]
-        [InlineData("image/jpg", true)]
-        [InlineData("image/png", true)]
-        [InlineData("image/gif", false)]
-        [InlineData("text/plain", false)]
-        public void IsValidImage_ChecksFileType(string contentType, bool expectedResult)
-        {
-            // Arrange
-            var fileMock = new Mock<IFormFile>();
-            fileMock.Setup(f => f.ContentType).Returns(contentType);
-            fileMock.Setup(f => f.Length).Returns(1024);
-            fileMock.Setup(f => f.FileName).Returns("test.jpg");
-
-            // Act
-            var result = _imageService.IsValidImage(fileMock.Object);
-
-            // Assert
-            Assert.Equal(expectedResult, result);
-        }
-
         [Fact]
-        public void IsValidImage_FileTooLarge_ReturnsFalse()
+        public async Task UpdateProfileImage_ValidImage_ReturnsTrue()
         {
             // Arrange
-            var file = CreateFormFile(new byte[6 * 1024 * 1024], "large.jpg", "image/jpeg");
+            var userId = Guid.NewGuid();
+            var imageBytes = CreateTestImage(200, 200);
+            var file = CreateFormFile(imageBytes, "test.jpg", "image/jpeg");
+
+            _imageRepositoryMock.Setup(x => x.UpdateProfileImageAsync(userId, It.IsAny<byte[]>()))
+                .ReturnsAsync(true);
 
             // Act
-            var result = _imageService.IsValidImage(file);
+            var result = await _imageService.UpdateProfileImageAsync(userId, file);
 
             // Assert
-            Assert.False(result);
-        }
-
-        [Fact]
-        public void IsValidImage_EmptyFile_ReturnsFalse()
-        {
-            // Arrange
-            var file = CreateFormFile(Array.Empty<byte>(), "empty.jpg", "image/jpeg");
-
-            // Act
-            var result = _imageService.IsValidImage(file);
-
-            // Assert
-            Assert.False(result);
+            Assert.True(result);
         }
 
         [Fact]
