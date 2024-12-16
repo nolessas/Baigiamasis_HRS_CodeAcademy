@@ -246,29 +246,40 @@ namespace Baigiamasis.Controllers
         {
             try 
             {
-                var result = await _humanInfoService.GetByUserIdAsync(userId);
+                // Check if human information exists for this user
+                var info = await _humanInfoService.GetByUserIdAsync(userId);
                 
-                if (result == null)
+                if (info == null || info.Data == null)
                 {
                     return NotFound(new ApiResponse<HumanInformationDto> 
                     { 
                         IsSuccess = false,
                         StatusCode = 404,
-                        Message = "No human information found for this user",
+                        Message = "Please complete your profile",
                         Data = null
                     });
                 }
                 
-                return StatusCode(result.StatusCode, result);
+                return Ok(info);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return StatusCode(403, new ApiResponse<HumanInformationDto>
+                {
+                    IsSuccess = false,
+                    StatusCode = 403,
+                    Message = "Access denied",
+                    Data = null
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting human information for user {UserId}", userId);
-                return StatusCode(500, new ApiResponse<HumanInformationDto>
+                return NotFound(new ApiResponse<HumanInformationDto>
                 {
                     IsSuccess = false,
-                    StatusCode = 500,
-                    Message = "An error occurred while retrieving user information",
+                    StatusCode = 404,
+                    Message = "Please complete your profile",
                     Data = null
                 });
             }

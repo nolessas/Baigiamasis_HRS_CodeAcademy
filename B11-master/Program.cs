@@ -20,7 +20,7 @@ using Baigiamasis.Services.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add HttpContextAccessor first since other services depend on it
+// Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
 // Add JWT Authentication
@@ -64,13 +64,10 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
-
-
+// Register Services - Single registration for each service
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-
 
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -78,13 +75,13 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IHumanInformationRepository, HumanInformationRepository>();
 builder.Services.AddScoped<IImageRepository, ImageRepository>();
 
-// Business services
+// Business Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IHumanInformationService, HumanInformationService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger Configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -125,43 +122,36 @@ builder.Services.AddSwaggerGen(options =>
     options.CustomSchemaIds(type => type.FullName?.Replace("+", "_"));
 });
 
-//Add DbContext DefaultConnection
+// Database Configuration
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    options.EnableSensitiveDataLogging();
+
+    if (builder.Environment.IsDevelopment())
+    {
+        options.EnableSensitiveDataLogging();
+    }
+
     options.ConfigureWarnings(warnings => {
-       
+        warnings.Log(RelationalEventId.QueryPossibleUnintendedUseOfEqualsWarning);
+        warnings.Log(CoreEventId.FirstWithoutOrderByAndFilterWarning);
     });
 });
 
-builder.Services.AddScoped<IImageService, ImageService>();
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IAdminRepository, AdminRepository>();
-
-// Register services
-builder.Services.AddScoped<IJwtService, JwtService>();
-builder.Services.AddScoped<IAdminService, AdminService>();
-builder.Services.AddScoped<IHumanInformationService, HumanInformationService>();
-builder.Services.AddScoped<IHumanInformationRepository, HumanInformationRepository>();
-builder.Services.AddScoped<IImageService, ImageService>();
-builder.Services.AddScoped<IPasswordService, PasswordService>();
-builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-
-// Add before app.Build()
+// CORS Configuration
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowFrontend",
-        policy => policy
-            .WithOrigins("http://localhost:5000") // Add your frontend URL
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials()
-            .SetIsOriginAllowed(_ => true)); // For development
+    options.AddPolicy("AllowFrontend", policy =>
+        policy.WithOrigins("http://localhost:5000")
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials()
+              .SetIsOriginAllowed(_ => true));
 });
 
+// AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// Controllers Configuration
 builder.Services.AddControllers(options =>
 {
     options.Filters.Add<ValidationFilter>();
@@ -178,6 +168,7 @@ builder.Services.AddControllers(options =>
 
 var app = builder.Build();
 
+// Middleware Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -185,11 +176,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseStaticFiles();
-
-// Important: CORS must be before Authentication/Authorization
 app.UseCors("AllowFrontend");
 app.UseHttpsRedirection();
-
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -202,4 +190,3 @@ namespace Baigiamasis
 {
     public partial class Program { }
 }
-

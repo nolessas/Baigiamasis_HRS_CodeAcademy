@@ -35,13 +35,6 @@ class HumanInfoService {
                 throw new Error('User ID is required');
             }
 
-            console.log('Fetching user info:', {
-                userId,
-                url: `${this.baseUrl}/user/${userId}`,
-                token: !!localStorage.getItem('token'),
-                fullToken: localStorage.getItem('token')
-            });
-
             const response = await fetch(`${this.baseUrl}/user/${userId}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -50,13 +43,12 @@ class HumanInfoService {
             });
             
             const data = await response.json();
-            console.log('API Response:', data);
             
-            if (response.status === 404) {
+            if (response.status === 404 || response.status === 500) {
                 return {
                     isSuccess: false,
-                    statusCode: 404,
-                    message: 'No user information found. Please complete your profile.',
+                    statusCode: response.status,
+                    message: 'Please complete your profile.',
                     data: null
                 };
             }
@@ -66,12 +58,9 @@ class HumanInfoService {
             }
             return data;
         } catch (error) {
-            console.error('Get human info error:', {
-                message: error.message,
-                userId: userId,
-                apiUrl: this.baseUrl,
-                stack: error.stack
-            });
+            if (!error.message.includes('Please complete your profile')) {
+                console.error('Get human info error:', error.message);
+            }
             throw error;
         }
     }
@@ -139,26 +128,19 @@ class HumanInfoService {
         try {
             const userId = localStorage.getItem('userId');
             if (!userId) {
-                console.warn('No user ID found in localStorage');
                 document.getElementById('humanInfoForm').classList.remove('hidden');
                 document.getElementById('userInfoDisplay').classList.add('hidden');
                 return;
             }
 
             const response = await this.getHumanInfo(userId);
-            console.log('Human info response:', response);
             
             if (!response.isSuccess || !response.data) {
-                console.log('No user information found, showing form');
                 document.getElementById('humanInfoForm').classList.remove('hidden');
                 document.getElementById('userInfoDisplay').classList.add('hidden');
-                
-                document.getElementById(containerId).innerHTML = 
-                    '<div class="alert alert-info">Please complete your profile information.</div>';
                 return;
             }
 
-            console.log('User information found, showing display');
             document.getElementById('humanInfoForm').classList.add('hidden');
             document.getElementById('userInfoDisplay').classList.remove('hidden');
             
@@ -237,16 +219,21 @@ class HumanInfoService {
 
             // Add event listeners after rendering
             this.initializeEventListeners(info.id);
+            
+            // Reattach admin panel button listener
+            const adminPanelBtn = document.getElementById('adminPanelBtn');
+            if (adminPanelBtn) {
+                adminPanelBtn.removeEventListener('click', openAdminPanel);
+                adminPanelBtn.addEventListener('click', openAdminPanel);
+            }
+
         } catch (error) {
-            console.error('Display user info error:', {
-                message: error.message,
-                stack: error.stack
-            });
+            if (!error.message.includes('Please complete your profile')) {
+                console.error('Display user info error:', error.message);
+            }
             
             document.getElementById('humanInfoForm').classList.remove('hidden');
             document.getElementById('userInfoDisplay').classList.add('hidden');
-            document.getElementById(containerId).innerHTML = 
-                '<div class="alert alert-danger">Error loading user information. Please try creating your profile.</div>';
         }
     }
 

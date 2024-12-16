@@ -38,12 +38,6 @@ function updateUIBasedOnAuth() {
     const isAuth = authService.isAuthenticated();
     const isAdmin = authService.hasRole('Admin');
     
-    console.log('Auth state:', { 
-        isAuth, 
-        isAdmin,
-        storedRoles: localStorage.getItem('roles')
-    });
-    
     const loginBtn = document.getElementById('loginBtn');
     const registerBtn = document.getElementById('registerBtn');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -60,11 +54,10 @@ function updateUIBasedOnAuth() {
         logoutBtn.classList.remove('hidden');
         
         if (isAdmin) {
-            console.log('User is admin, showing admin panel button');
             adminPanelBtn.classList.remove('hidden');
-            adminPanelBtn.addEventListener('click', openAdminPanel);
+            // Reinitialize admin panel
+            initializeAdminPanel();
         } else {
-            console.log('User is not admin, hiding admin panel button');
             adminPanelBtn.classList.add('hidden');
         }
         
@@ -94,44 +87,32 @@ async function loadHumanInformation() {
     try {
         const userId = localStorage.getItem('userId');
         if (!userId) {
-            console.warn('No user ID found in storage');
             document.getElementById('humanInfoForm').classList.remove('hidden');
             document.getElementById('userInfoDisplay').classList.add('hidden');
             return;
         }
 
-        console.log('Loading human information for user:', userId);
-        
         const humanInfo = new HumanInfoService();
         const response = await humanInfo.getHumanInfo(userId);
-        
-        console.log('Load human info response:', response);
 
+        // For both new users and errors, show the form
         if (!response.isSuccess || !response.data) {
-            console.log('No user information found, showing form');
             document.getElementById('humanInfoForm').classList.remove('hidden');
             document.getElementById('userInfoDisplay').classList.add('hidden');
             return;
         }
 
-        // If we have data, display it
-        console.log('User information found, showing display');
-        await humanInfo.displayUserInfo('userInfoContent');
         document.getElementById('humanInfoForm').classList.add('hidden');
         document.getElementById('userInfoDisplay').classList.remove('hidden');
+        await humanInfo.displayUserInfo('userInfoContent');
     } catch (error) {
-        console.error('Error loading human information:', {
-            message: error.message,
-            stack: error.stack
-        });
+        // Only log real errors
+        if (!error.message.includes('Please complete your profile')) {
+            console.error('Error loading human information:', error.message);
+        }
         
-        // Show form on error
         document.getElementById('humanInfoForm').classList.remove('hidden');
         document.getElementById('userInfoDisplay').classList.add('hidden');
-        
-        // Show error message
-        document.getElementById('userInfoContent').innerHTML = 
-            '<div class="alert alert-danger">Error loading information. Please try creating your profile.</div>';
     }
 }
 
@@ -163,7 +144,6 @@ async function handleLogin(e) {
     e.preventDefault();
     
     const validation = Validator.validateForm(e.target);
-    console.log('Login validation result:', validation); // Debug logging
 
     if (!validation.isValid) {
         // Show specific error messages
@@ -200,7 +180,6 @@ async function handleRegister(e) {
     e.preventDefault();
     
     const validation = Validator.validateForm(e.target);
-    console.log('Registration validation result:', validation); // Debug logging
 
     if (!validation.isValid) {
         // Show specific error messages
@@ -225,10 +204,13 @@ async function handleRegister(e) {
             showForm('login');
             e.target.reset();
         } else {
+            // Handle specific error messages from the server
             showMessage(response?.message || 'Registration failed', 'error');
         }
     } catch (error) {
+        // Handle specific error cases, including duplicate username
         showMessage(error.message || 'An error occurred during registration', 'error');
+        console.error('Registration error:', error);
     }
 }
 
@@ -325,6 +307,7 @@ async function handleUpdate(fieldName) {
             await humanInfoService.displayUserInfo('userInfoContent');
             modal.remove();
             showMessage(`${fieldName} updated successfully`, 'success');
+            reattachAdminPanelListener();
         } catch (error) {
             showMessage(error.message, 'error');
         }
@@ -347,6 +330,7 @@ async function handleImageUpdate() {
             await humanInfoService.displayUserInfo('userInfoContent');
             modal.remove();
             showMessage('Profile picture updated successfully', 'success');
+            reattachAdminPanelListener();
         } catch (error) {
             showMessage(error.message, 'error');
         }
@@ -374,6 +358,7 @@ async function handleAddressUpdate() {
             await humanInfoService.displayUserInfo('userInfoContent');
             modal.remove();
             showMessage('Address updated successfully', 'success');
+            reattachAdminPanelListener();
         } catch (error) {
             showMessage(error.message, 'error');
         }
@@ -509,4 +494,12 @@ function checkAuthState() {
     };
     console.log('Auth State:', state);
     return state;
+}
+
+function reattachAdminPanelListener() {
+    const adminPanelBtn = document.getElementById('adminPanelBtn');
+    if (adminPanelBtn) {
+        adminPanelBtn.removeEventListener('click', openAdminPanel);
+        adminPanelBtn.addEventListener('click', openAdminPanel);
+    }
 }

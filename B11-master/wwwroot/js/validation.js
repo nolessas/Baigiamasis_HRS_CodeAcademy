@@ -30,8 +30,6 @@ class Validator {
     static validateField(fieldName, value) {
         const normalizedFieldName = fieldName.toLowerCase().replace('.', '');
         
-        console.log('Validating field:', normalizedFieldName); // Debug log
-
         if (!value && normalizedFieldName !== 'apartmentnumber') {
             return {
                 isValid: false,
@@ -45,7 +43,6 @@ class Validator {
 
         const pattern = this.patterns[normalizedFieldName];
         if (!pattern) {
-            console.warn(`No validation pattern found for field: ${normalizedFieldName}`);
             return { isValid: true };
         }
 
@@ -130,23 +127,18 @@ class Validator {
         let isValid = true;
         const errors = {};
 
-        // Get all input elements
         const inputs = formElement.querySelectorAll('input');
         
         inputs.forEach(input => {
             const fieldName = input.name.toLowerCase().replace('.', '');
             const validation = this.validateField(fieldName, input.value);
             
-            console.log(`Form validation for ${fieldName}:`, validation); // Debug log
-
             if (!validation.isValid) {
                 isValid = false;
                 errors[fieldName] = validation.message;
                 
-                // Add visual feedback
                 input.classList.add('invalid');
                 
-                // Show error message
                 const errorDiv = input.nextElementSibling;
                 if (errorDiv && errorDiv.classList.contains('error-message')) {
                     errorDiv.textContent = validation.message;

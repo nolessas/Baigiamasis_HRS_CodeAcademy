@@ -28,7 +28,7 @@
                         <input type="text"
                                placeholder="Username"
                                name="username"
-                               pattern="[a-zA-Z0-9._-]{3,50}"
+                               pattern="[a-zA-Z0-9\._\-]{3,50}"
                                title="3-50 characters, letters, numbers, and .-_"
                                required>
                         <div class="error-message"></div>
@@ -54,7 +54,7 @@
                         <input type="text"
                                placeholder="Username"
                                name="username"
-                               pattern="[a-zA-Z0-9._-]{3,50}"
+                               pattern="[a-zA-Z0-9\._\-]{3,50}"
                                title="3-50 characters, letters, numbers, and .-_"
                                required>
                         <div class="error-message"></div>
@@ -83,8 +83,8 @@
                         <input type="text"
                                placeholder="First Name"
                                name="firstname"
-                               pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž]+"
-                               title="Must start with uppercase and contain only Lithuanian letters"
+                               pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž]+"
+                               title="Must contain only Lithuanian letters"
                                required>
                         <div class="error-message"></div>
                     </div>
@@ -92,7 +92,7 @@
                         <input type="text"
                                placeholder="Last Name"
                                name="lastname"
-                               pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž]+"
+                               pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž]+"
                                title="Must start with uppercase and contain only Lithuanian letters"
                                required>
                         <div class="error-message"></div>
@@ -122,7 +122,7 @@
                     <input type="email"
                            placeholder="Email"
                            name="email"
-                           pattern="[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)"
+                           pattern="[a-zA-Z0-9._%+-]+@gmail\.com|[a-zA-Z0-9._%+-]+@yahoo\.com"
                            title="Only gmail.com and yahoo.com domains are allowed"
                            required>
                     <div class="error-message"></div>
@@ -135,8 +135,8 @@
                             <input type="text"
                                    placeholder="City"
                                    name="city"
-                                   pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž\s-]+"
-                                   title="Must start with uppercase and contain only letters, spaces and hyphens"
+                                   pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž\s-]+"
+                                   title="Must contain only letters, spaces and hyphens"
                                    required>
                             <div class="error-message"></div>
                         </div>
@@ -144,8 +144,8 @@
                             <input type="text"
                                    placeholder="Street"
                                    name="street"
-                                   pattern="[A-ZĄČĘĖĮŠŲŪŽ][a-ząčęėįšųūž\s-]+"
-                                   title="Must start with uppercase and contain only letters, spaces and hyphens"
+                                   pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž\s-]+"
+                                   title="Must contain only letters, spaces and hyphens"
                                    required>
                             <div class="error-message"></div>
                         </div>
@@ -190,7 +190,7 @@
 
         <!-- User Information Display -->
         <div id="userInfoDisplay" class="info-container hidden">
-            <h2>Your Information</h2>
+            <h2><span id="userFirstName"></span></h2>
             <div id="userInfoContent"></div>
         </div>
 
@@ -206,25 +206,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Admin Panel Modal -->
-        <div id="adminPanelModal" class="modal hidden">
-            <div class="modal-content admin-panel-content">
-                <div class="modal-header">
-                    <h2>Admin Panel - Users List</h2>
-                    <button onclick="closeAdminPanel()" class="close-btn">&times;</button>
-                </div>
-                <div class="search-box">
-                    <input type="text" id="modalUserSearch" placeholder="Search users...">
-                </div>
-                <div id="adminUsersList" class="users-list">
-                    <!-- Users will be loaded here -->
-                </div>
-            </div>
-        </div>
     </div>
-
-  
 
     <script src="js/validation.js"></script>
     <script src="js/auth.js"></script>

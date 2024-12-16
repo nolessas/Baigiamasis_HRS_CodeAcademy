@@ -749,3 +749,10 @@ input.invalid {
     align-items: center;
     gap: 0.5rem;
 } 
+
+h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    
+}

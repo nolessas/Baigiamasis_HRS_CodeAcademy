@@ -91,8 +91,20 @@ namespace Baigiamasis.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ApiResponse<object>>> Signup([FromBody] UserRegistrationDto request)
         {
-            var result = await _userService.Signup(request.Username, request.Password);
-            return StatusCode(result.StatusCode, result);
+            try 
+            {
+                var result = await _userService.Signup(request.Username, request.Password);
+                return StatusCode(result.StatusCode, result);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("Username already exists"))
+            {
+                return BadRequest(ApiResponse<object>.Failure("Username already taken", 400));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during user registration");
+                return StatusCode(500, ApiResponse<object>.Failure("An error occurred during registration"));
+            }
         }
     }
 } 

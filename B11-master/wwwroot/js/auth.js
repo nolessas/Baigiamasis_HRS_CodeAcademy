@@ -15,7 +15,6 @@ class AuthService {
             });
 
             const data = await response.json();
-            console.log('Raw login response:', data);
 
             if (!response.ok) {
                 throw new Error(data.message || 'Login failed');
@@ -41,15 +40,13 @@ class AuthService {
             this.token = loginData.token;
             return { ...loginData, roles };
         } catch (error) {
-            console.error('Login error:', error);
+            console.error('Login failed:', error.message);
             throw error;
         }
     }
 
     async signup(username, password) {
         try {
-            console.log('Attempting signup with:', { username });
-
             const response = await fetch(`${this.baseUrl}/signup`, {
                 method: 'POST',
                 headers: {
@@ -59,18 +56,18 @@ class AuthService {
                 body: JSON.stringify({ username, password })
             });
 
-            console.log('Server response status:', response.status);
-            
             const data = await response.json();
-            console.log('Server response data:', data);
-
-            if (!data.isSuccess) {
+            
+            if (!response.ok) {
+                if (data.message === "Username already taken") {
+                    throw new Error("This username is already taken. Please choose another one.");
+                }
                 throw new Error(data.message || 'Registration failed');
             }
 
             return data;
         } catch (error) {
-            console.error('Signup error details:', error);
+            console.error('Registration failed:', error.message);
             throw error;
         }
     }

@@ -41,7 +41,6 @@ class AdminService {
             }
 
             const data = await response.json();
-            console.log('Fetched users:', data);
             
             if (!data.isSuccess) {
                 throw new Error(data.message || 'Failed to fetch users');
@@ -49,7 +48,7 @@ class AdminService {
 
             return data;
         } catch (error) {
-            console.error('Error fetching users:', error);
+            console.error('Failed to fetch users:', error.message);
             throw error;
         }
     }
@@ -111,16 +110,18 @@ async function openAdminPanel() {
             return;
         }
         
-        const modal = document.getElementById('adminPanelModal');
+        // Check if modal exists, if not create it
+        let modal = document.getElementById('adminPanelModal');
         if (!modal) {
-            console.error('Admin panel modal not found');
-            return;
+            modal = createAdminPanelModal();
+            document.body.appendChild(modal);
+            initializeAdminPanel();
         }
         
         modal.classList.remove('hidden');
         await loadUsers();
     } catch (error) {
-        console.error('Failed to open admin panel:', error);
+        console.error('Admin panel access denied:', error.message);
         showMessage('Access denied. Please check your permissions.', 'error');
     }
 }
@@ -240,4 +241,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalSearch) {
         modalSearch.addEventListener('input', filterUsers);
     }
-}); 
+});
+
+// Add this function to create the modal
+function createAdminPanelModal() {
+    const modal = document.createElement('div');
+    modal.id = 'adminPanelModal';
+    modal.className = 'modal hidden';
+    modal.innerHTML = `
+        <div class="modal-content admin-panel-content">
+            <div class="modal-header">
+                <h2>Admin Panel - Users List</h2>
+                <button onclick="closeAdminPanel()" class="close-btn">&times;</button>
+            </div>
+            <div class="search-box">
+                <input type="text" id="modalUserSearch" placeholder="Search users...">
+            </div>
+            <div id="adminUsersList" class="users-list">
+                <!-- Users will be loaded here -->
+            </div>
+        </div>
+    `;
+    return modal;
+}
+
+// Add this function
+function initializeAdminPanel() {
+    const modalSearch = document.getElementById('modalUserSearch');
+    if (modalSearch) {
+        modalSearch.removeEventListener('input', filterUsers);
+        modalSearch.addEventListener('input', filterUsers);
+    }
+} 
