@@ -273,6 +273,11 @@ input.invalid {
     color: white;
 }
 
+.notification-bar.info {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
 /* Admin Panel Styles */
 .admin-panel {
     background: white;

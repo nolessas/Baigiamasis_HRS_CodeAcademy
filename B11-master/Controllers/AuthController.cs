@@ -93,17 +93,35 @@ namespace Baigiamasis.Controllers
         {
             try 
             {
+                // Validate request
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ApiResponse<object>.Failure(
+                        ModelState.Values.SelectMany(v => v.Errors).First().ErrorMessage,
+                        StatusCodes.Status400BadRequest));
+                }
+
                 var result = await _userService.Signup(request.Username, request.Password);
-                return StatusCode(result.StatusCode, result);
+                
+                // If successful, return 201 Created
+                if (result.IsSuccess)
+                {
+                    return StatusCode(StatusCodes.Status201Created, result);
+                }
+
+                // If there was a validation error or conflict, return 400
+                return BadRequest(result);
             }
             catch (InvalidOperationException ex) when (ex.Message.Contains("Username already exists"))
             {
-                return BadRequest(ApiResponse<object>.Failure("Username already taken", 400));
+                _logger.LogWarning("Registration attempt with existing username: {Username}", request.Username);
+                return BadRequest(ApiResponse<object>.Failure("Username already taken", StatusCodes.Status400BadRequest));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error during user registration");
-                return StatusCode(500, ApiResponse<object>.Failure("An error occurred during registration"));
+                _logger.LogError(ex, "Error during user registration for username: {Username}", request.Username);
+                return StatusCode(StatusCodes.Status500InternalServerError, 
+                    ApiResponse<object>.Failure("An unexpected error occurred during registration"));
             }
         }
     }

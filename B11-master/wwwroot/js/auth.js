@@ -59,13 +59,17 @@ class AuthService {
             const data = await response.json();
             
             if (!response.ok) {
-                if (data.message === "Username already taken") {
-                    throw new Error("This username is already taken. Please choose another one.");
+                if (response.status === 400 && data.message.includes('Username already taken')) {
+                    throw new Error('This username is already taken. Please choose another one.');
                 }
                 throw new Error(data.message || 'Registration failed');
             }
 
-            return data;
+            return {
+                isSuccess: true,
+                message: data.message || 'Registration successful! Please login.',
+                data: data.data
+            };
         } catch (error) {
             console.error('Registration failed:', error.message);
             throw error;

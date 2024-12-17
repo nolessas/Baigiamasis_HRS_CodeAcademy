@@ -47,19 +47,18 @@ namespace Baigiamasis.Services.Services
                 // Validate input
                 if (!IsValidUsername(username))
                 {
-                    return ApiResponse<object>.BadRequest("Invalid username format");
+                    return ApiResponse<object>.BadRequest("Invalid username format. Username must be 3-50 characters and contain only letters, numbers, dots, underscores, or hyphens.");
                 }
 
                 if (!IsValidPassword(password))
                 {
-                    return ApiResponse<object>.BadRequest("Invalid password format");
+                    return ApiResponse<object>.BadRequest("Invalid password format. Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, and one number.");
                 }
 
                 // Check for existing username
                 var existingUser = await _userRepository.GetByUsernameAsync(username);
                 if (existingUser != null)
                 {
-                    _logger.LogWarning("Registration attempt with existing username: {Username}", username);
                     throw new InvalidOperationException("Username already exists");
                 }
 
@@ -82,10 +81,10 @@ namespace Baigiamasis.Services.Services
 
                 return ApiResponse<object>.Created(
                     new { createdUser.Id }, 
-                    "User created successfully"
+                    "User registered successfully"
                 );
             }
-            catch (InvalidOperationException ex)
+            catch (InvalidOperationException)
             {
                 // Rethrow username exists exception to be handled by controller
                 throw;
@@ -93,7 +92,7 @@ namespace Baigiamasis.Services.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error during signup for user {Username}", username);
-                return ApiResponse<object>.Failure("An error occurred during registration", 500);
+                throw;
             }
         }
 

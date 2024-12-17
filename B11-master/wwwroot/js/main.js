@@ -94,21 +94,29 @@ async function loadHumanInformation() {
 
         const humanInfo = new HumanInfoService();
         const response = await humanInfo.getHumanInfo(userId);
-
-        // For both new users and errors, show the form
+        
+        // Handle case where user hasn't submitted info yet
         if (!response.isSuccess || !response.data) {
+            // Show the form for new users
             document.getElementById('humanInfoForm').classList.remove('hidden');
             document.getElementById('userInfoDisplay').classList.add('hidden');
+            
+            // Only show message if it's a new user (404)
+            if (response.statusCode === 404) {
+                showMessage('Please complete your profile information', 'info');
+            }
             return;
         }
 
+        // User has data, show the display
         document.getElementById('humanInfoForm').classList.add('hidden');
         document.getElementById('userInfoDisplay').classList.remove('hidden');
         await humanInfo.displayUserInfo('userInfoContent');
     } catch (error) {
-        // Only log real errors
+        // Only show error for unexpected issues
         if (!error.message.includes('Please complete your profile')) {
             console.error('Error loading human information:', error.message);
+            showMessage('Error loading profile information', 'error');
         }
         
         document.getElementById('humanInfoForm').classList.remove('hidden');
@@ -180,7 +188,6 @@ async function handleRegister(e) {
     e.preventDefault();
     
     const validation = Validator.validateForm(e.target);
-
     if (!validation.isValid) {
         // Show specific error messages
         Object.entries(validation.errors).forEach(([field, message]) => {
@@ -199,17 +206,20 @@ async function handleRegister(e) {
 
     try {
         const response = await authService.signup(username, password);
-        if (response && response.isSuccess) {
+        if (response.isSuccess) {
             showMessage('Registration successful! Please login.', 'success');
             showForm('login');
             e.target.reset();
         } else {
-            // Handle specific error messages from the server
-            showMessage(response?.message || 'Registration failed', 'error');
+            showMessage(response.message || 'Registration failed', 'error');
         }
     } catch (error) {
-        // Handle specific error cases, including duplicate username
-        showMessage(error.message || 'An error occurred during registration', 'error');
+        // Handle specific error messages
+        const errorMessage = error.message.includes('Username already taken') 
+            ? 'This username is already taken. Please choose another one.'
+            : error.message || 'An error occurred during registration';
+            
+        showMessage(errorMessage, 'error');
         console.error('Registration error:', error);
     }
 }

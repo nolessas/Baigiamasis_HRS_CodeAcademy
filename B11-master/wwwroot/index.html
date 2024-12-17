@@ -83,7 +83,7 @@
                         <input type="text"
                                placeholder="First Name"
                                name="firstname"
-                               pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž]+"
+                               pattern="[A-Za-z\u0104-\u017F]+"
                                title="Must contain only Lithuanian letters"
                                required>
                         <div class="error-message"></div>
@@ -92,7 +92,7 @@
                         <input type="text"
                                placeholder="Last Name"
                                name="lastname"
-                               pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž]+"
+                               pattern="[A-Za-z\u0104-\u017F]+"
                                title="Must start with uppercase and contain only Lithuanian letters"
                                required>
                         <div class="error-message"></div>
@@ -122,7 +122,7 @@
                     <input type="email"
                            placeholder="Email"
                            name="email"
-                           pattern="[a-zA-Z0-9._%+-]+@gmail\.com|[a-zA-Z0-9._%+-]+@yahoo\.com"
+                           pattern="[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com)"
                            title="Only gmail.com and yahoo.com domains are allowed"
                            required>
                     <div class="error-message"></div>
@@ -135,7 +135,7 @@
                             <input type="text"
                                    placeholder="City"
                                    name="city"
-                                   pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž\s-]+"
+                                   pattern="[A-Za-z\u0104-\u017F\s-]+"
                                    title="Must contain only letters, spaces and hyphens"
                                    required>
                             <div class="error-message"></div>
@@ -144,7 +144,7 @@
                             <input type="text"
                                    placeholder="Street"
                                    name="street"
-                                   pattern="[A-Za-zĄąČčĘęĖėĮįŠšŲųŪūŽž\s-]+"
+                                   pattern="[A-Za-z\u0104-\u017F\s-]+"
                                    title="Must contain only letters, spaces and hyphens"
                                    required>
                             <div class="error-message"></div>

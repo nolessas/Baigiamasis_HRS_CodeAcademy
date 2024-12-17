@@ -32,7 +32,12 @@ class HumanInfoService {
     async getHumanInfo(userId) {
         try {
             if (!userId) {
-                throw new Error('User ID is required');
+                return {
+                    isSuccess: false,
+                    message: 'Please complete your profile',
+                    statusCode: 404,
+                    data: null
+                };
             }
 
             const response = await fetch(`${this.baseUrl}/user/${userId}`, {
@@ -44,11 +49,11 @@ class HumanInfoService {
             
             const data = await response.json();
             
-            if (response.status === 404 || response.status === 500) {
+            if (response.status === 404) {
                 return {
                     isSuccess: false,
-                    statusCode: response.status,
-                    message: 'Please complete your profile.',
+                    statusCode: 404,
+                    message: 'Please complete your profile',
                     data: null
                 };
             }
@@ -56,12 +61,19 @@ class HumanInfoService {
             if (!response.ok) {
                 throw new Error(data.message || "Failed to get human information");
             }
+
             return data;
         } catch (error) {
+            console.log('Get human info status:', error.message);
             if (!error.message.includes('Please complete your profile')) {
-                console.error('Get human info error:', error.message);
+                throw error;
             }
-            throw error;
+            return {
+                isSuccess: false,
+                message: 'Please complete your profile',
+                statusCode: 404,
+                data: null
+            };
         }
     }
 
