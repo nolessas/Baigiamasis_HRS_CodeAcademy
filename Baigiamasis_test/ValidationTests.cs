@@ -4,11 +4,39 @@ using System.Collections.Generic;
 using Baigiamasis.DTOs.HumanInformation;
 using Baigiamasis.DTOs.User;
 using Baigiamasis.DTOs.Auth;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Moq;
+using Baigiamasis.Controllers;
+using Baigiamasis.Services.Services.Interfaces;
+using Baigiamasis.Services.Auth.Interfaces;
+using Baigiamasis.DTOs.Common;
 
 namespace Baigiamasis_test
 {
     public class ValidationTests
     {
+        private readonly HumanInformationController _controller;
+        private readonly Mock<IHumanInformationService> _humanInfoServiceMock;
+        private readonly Mock<ICurrentUserService> _currentUserServiceMock;
+        private readonly Mock<IImageService> _imageServiceMock;
+        private readonly Guid _humanInfoId;
+
+        public ValidationTests()
+        {
+            _humanInfoServiceMock = new Mock<IHumanInformationService>();
+            _currentUserServiceMock = new Mock<ICurrentUserService>();
+            _imageServiceMock = new Mock<IImageService>();
+            var loggerMock = new Mock<ILogger<HumanInformationController>>();
+            _humanInfoId = Guid.NewGuid();
+
+            _controller = new HumanInformationController(
+                _humanInfoServiceMock.Object,
+                loggerMock.Object,
+                _imageServiceMock.Object,
+                _currentUserServiceMock.Object);
+        }
+
         private IList<ValidationResult> ValidateModel(object model)
         {
             var validationResults = new List<ValidationResult>();
@@ -233,6 +261,34 @@ namespace Baigiamasis_test
             {
                 Assert.NotEmpty(validationResults);
             }
+        }
+
+        [Theory]
+        [InlineData("Vilnius123", "City name cannot contain numbers")]
+        [InlineData("vilnius", "City must start with uppercase")]
+        [InlineData("V", "City name is too short")]
+        public async Task UpdateCity_WithInvalidFormat_ReturnsBadRequest(string cityName, string expectedError)
+        {
+            // Arrange
+            var updateRequest = new StringUpdateDto { Value = cityName };
+            var errorResponse = ApiResponse<bool>.BadRequest(expectedError);
+            
+            _humanInfoServiceMock.Setup(x => x.UpdateCityAsync(_humanInfoId, cityName))
+                .ReturnsAsync(errorResponse);
+
+            // Mock current user service to allow access
+            _currentUserServiceMock.Setup(x => x.CanAccessUser(It.IsAny<Guid>()))
+                .Returns(true);
+
+            // Act
+            var result = await _controller.UpdateCity(_humanInfoId, updateRequest);
+
+            // Assert
+            var actionResult = Assert.IsType<ActionResult<ApiResponse<bool>>>(result);
+            var badRequestResult = Assert.IsType<ObjectResult>(actionResult.Result);
+            var response = Assert.IsType<ApiResponse<bool>>(badRequestResult.Value);
+            Assert.Equal(400, badRequestResult.StatusCode);
+            Assert.Contains(expectedError, response.Message);
         }
     }
 } 

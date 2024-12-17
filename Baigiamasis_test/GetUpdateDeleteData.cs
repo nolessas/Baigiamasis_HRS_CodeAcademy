@@ -183,7 +183,7 @@ namespace Baigiamasis_test
 
             // Assert
             var actionResult = Assert.IsType<ActionResult<ApiResponse<HumanInformationDto>>>(result);
-            var okResult = Assert.IsType<ObjectResult>(actionResult.Result);
+            var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
             var response = Assert.IsType<ApiResponse<HumanInformationDto>>(okResult.Value);
             Assert.True(response.IsSuccess);
             Assert.Equal(200, response.StatusCode);

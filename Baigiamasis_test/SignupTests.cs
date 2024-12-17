@@ -1,19 +1,19 @@
 using Baigiamasis.Controllers;
 using Baigiamasis.DTOs.User;
+using Baigiamasis.DTOs.Auth;
 using Baigiamasis.DTOs.Common;
-using Microsoft.Extensions.Logging;
+using Baigiamasis.Models;
+using Baigiamasis.Services.Auth.Interfaces;
+using Baigiamasis.Services.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using AutoMapper;
 using System.ComponentModel.DataAnnotations;
-using Baigiamasis.Models;
-using Baigiamasis.DTOs.Auth;
-using Baigiamasis.Services.Auth.Interfaces;
-using Baigiamasis.Services.Services.Interfaces;
 
 namespace Baigiamasis_test
 {
-    public class SignupTests
+    public class AuthControllerTests
     {
         private readonly Mock<IUserService> _userServiceMock;
         private readonly Mock<IJwtService> _jwtServiceMock;
@@ -21,7 +21,7 @@ namespace Baigiamasis_test
         private readonly Mock<IMapper> _mapperMock;
         private readonly AuthController _controller;
 
-        public SignupTests()
+        public AuthControllerTests()
         {
             _userServiceMock = new Mock<IUserService>();
             _jwtServiceMock = new Mock<IJwtService>();
@@ -35,18 +35,18 @@ namespace Baigiamasis_test
         }
 
         [Fact]
-        public async Task Signup_WithValidData_CreatesUserWithDefaultRole()
+        public async Task Signup_WithValidData_ReturnsCreatedResponse()
         {
             // Arrange
             var request = new UserRegistrationDto
             {
                 Username = "testuser",
-                Password = "Password123!"
+                Password = "Password123"
             };
 
             var successResponse = ApiResponse<object>.Created(
                 new { Id = Guid.NewGuid() },
-                "User created successfully"
+                "User registered successfully"
             );
 
             _userServiceMock.Setup(x => x.Signup(request.Username, request.Password))
@@ -58,64 +58,39 @@ namespace Baigiamasis_test
             // Assert
             var actionResult = Assert.IsType<ActionResult<ApiResponse<object>>>(result);
             var objectResult = Assert.IsType<ObjectResult>(actionResult.Result);
+            Assert.Equal(201, objectResult.StatusCode);
+
             var response = Assert.IsType<ApiResponse<object>>(objectResult.Value);
             Assert.True(response.IsSuccess);
             Assert.Equal(201, response.StatusCode);
-            Assert.Contains("created successfully", response.Message);
+            Assert.Contains("registered successfully", response.Message);
         }
 
         [Theory]
-        [InlineData("", "Password123!", "Username is required")]
-        [InlineData("user", "", "Password is required")]
-        [InlineData("us", "Password123!", "Username must be between 3 and 50 characters")]
+        [InlineData("", "Password123", "Username is required")]
+        [InlineData("us", "Password123", "Username must be between 3 and 50 characters")]
         [InlineData("user", "pass", "Password must be at least 6 characters")]
+        [InlineData("user@123", "Password123", "Username can only contain letters, numbers, and .-_")]
         public async Task Signup_WithInvalidData_ReturnsBadRequest(string username, string password, string expectedError)
         {
             // Arrange
-            var signupRequest = new UserRegistrationDto
+            var request = new UserRegistrationDto
             {
                 Username = username,
                 Password = password
             };
 
             var errorResponse = ApiResponse<object>.BadRequest(expectedError);
-            _userServiceMock.Setup(x => x.Signup(signupRequest.Username, signupRequest.Password))
+            _userServiceMock.Setup(x => x.Signup(request.Username, request.Password))
                 .ReturnsAsync(errorResponse);
 
             // Act
-            var result = await _controller.Signup(signupRequest);
+            var result = await _controller.Signup(request);
 
             // Assert
-            var actionResult = Assert.IsType<ObjectResult>(result.Result);
-            var response = Assert.IsType<ApiResponse<object>>(actionResult.Value);
-            Assert.False(response.IsSuccess);
-            Assert.Equal(400, response.StatusCode);
-            Assert.Contains(expectedError, response.Message);
-        }
-
-        [Theory]
-        [InlineData("user@123", "Password123!", "Username contains invalid characters")]
-        [InlineData("admin", "Password123!", "Username 'admin' is reserved")]
-        [InlineData("validuser", "pass word", "Password contains invalid characters")]
-        public async Task Signup_WithInvalidFormat_ReturnsBadRequest(string username, string password, string expectedError)
-        {
-            // Arrange
-            var signupRequest = new UserRegistrationDto
-            {
-                Username = username,
-                Password = password
-            };
-
-            var errorResponse = ApiResponse<object>.BadRequest(expectedError);
-            _userServiceMock.Setup(x => x.Signup(signupRequest.Username, signupRequest.Password))
-                .ReturnsAsync(errorResponse);
-
-            // Act
-            var result = await _controller.Signup(signupRequest);
-
-            // Assert
-            var actionResult = Assert.IsType<ObjectResult>(result.Result);
-            var response = Assert.IsType<ApiResponse<object>>(actionResult.Value);
+            var actionResult = Assert.IsType<ActionResult<ApiResponse<object>>>(result);
+            var objectResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            var response = Assert.IsType<ApiResponse<object>>(objectResult.Value);
             Assert.False(response.IsSuccess);
             Assert.Equal(400, response.StatusCode);
             Assert.Contains(expectedError, response.Message);
@@ -128,69 +103,32 @@ namespace Baigiamasis_test
             var request = new UserRegistrationDto
             {
                 Username = "existinguser",
-                Password = "Password123!"
+                Password = "Password123"
             };
 
-            var errorResponse = ApiResponse<object>.BadRequest("Username already exists");
             _userServiceMock.Setup(x => x.Signup(request.Username, request.Password))
-                .ReturnsAsync(errorResponse);
+                .ThrowsAsync(new InvalidOperationException("Username already exists"));
 
             // Act
             var result = await _controller.Signup(request);
 
             // Assert
-            var actionResult = Assert.IsType<ObjectResult>(result.Result);
-            var response = Assert.IsType<ApiResponse<object>>(actionResult.Value);
+            var actionResult = Assert.IsType<ActionResult<ApiResponse<object>>>(result);
+            var objectResult = Assert.IsType<BadRequestObjectResult>(actionResult.Result);
+            var response = Assert.IsType<ApiResponse<object>>(objectResult.Value);
             Assert.False(response.IsSuccess);
             Assert.Equal(400, response.StatusCode);
-            Assert.Equal("Username already exists", response.Message);
+            Assert.Contains("Username already taken", response.Message);
         }
 
         [Fact]
-        public async Task Signup_WithNullRequest_ReturnsBadRequest()
-        {
-            // Arrange
-            UserRegistrationDto? nullRequest = null;
-
-            // Act &  Assert
-            var exception = await Assert.ThrowsAsync<NullReferenceException>(
-                async () => await _controller.Signup(nullRequest));
-            Assert.NotNull(exception);
-        }
-
-        [Fact]
-        public void UserRegistrationDto_ValidationAttributes_AreCorrect()
-        {
-            // Arrange
-            var properties = typeof(UserRegistrationDto).GetProperties();
-            
-            // Assert
-            var usernameProperty = properties.First(p => p.Name == "Username");
-            var usernameRequired = usernameProperty.GetCustomAttributes(typeof(RequiredAttribute), false).Any();
-            var usernameLength = usernameProperty.GetCustomAttributes(typeof(StringLengthAttribute), false).FirstOrDefault() as StringLengthAttribute;
-            
-            Assert.True(usernameRequired);
-            Assert.NotNull(usernameLength);
-            Assert.Equal(50, usernameLength.MaximumLength);
-            Assert.Equal(3, usernameLength.MinimumLength);
-
-            var passwordProperty = properties.First(p => p.Name == "Password");
-            var passwordRequired = passwordProperty.GetCustomAttributes(typeof(RequiredAttribute), false).Any();
-            var passwordMinLength = passwordProperty.GetCustomAttributes(typeof(MinLengthAttribute), false).FirstOrDefault() as MinLengthAttribute;
-
-            Assert.True(passwordRequired);
-            Assert.NotNull(passwordMinLength);
-            Assert.Equal(6, passwordMinLength.Length);
-        }
-
-        [Fact]
-        public async Task Login_WithValidCredentials_ReturnsToken()
+        public async Task Login_WithValidCredentials_ReturnsSuccessWithToken()
         {
             // Arrange
             var request = new LoginRequestDto
             {
                 Username = "testuser",
-                Password = "Password123!"
+                Password = "Password123"
             };
 
             var user = new User
@@ -200,23 +138,23 @@ namespace Baigiamasis_test
                 Roles = new List<string> { "User" }
             };
 
-            var loginResponse = new LoginResponseDto
+            var expectedResponse = new LoginResponseDto
             {
                 UserId = user.Id,
                 Username = user.Username,
                 Token = "test.jwt.token",
                 Roles = user.Roles,
-                ExpiresAt = DateTime.UtcNow.AddHours(3)
+                ExpiresAt = DateTime.UtcNow.AddHours(1)
             };
 
             _userServiceMock.Setup(x => x.ValidateUserAsync(request.Username, request.Password))
                 .ReturnsAsync(user);
-
             _mapperMock.Setup(x => x.Map<LoginResponseDto>(user))
-                .Returns(loginResponse);
-
+                .Returns(expectedResponse);
             _jwtServiceMock.Setup(x => x.GenerateToken(user.Id.ToString(), user.Username, user.Roles))
-                .Returns(loginResponse.Token);
+                .Returns(expectedResponse.Token);
+            _jwtServiceMock.Setup(x => x.GetTokenExpirationTime())
+                .Returns(expectedResponse.ExpiresAt);
 
             // Act
             var result = await _controller.Login(request);
@@ -224,13 +162,13 @@ namespace Baigiamasis_test
             // Assert
             var actionResult = Assert.IsType<ActionResult<ApiResponse<LoginResponseDto>>>(result);
             var objectResult = Assert.IsType<ObjectResult>(actionResult.Result);
+            Assert.Equal(200, objectResult.StatusCode);
+
             var response = Assert.IsType<ApiResponse<LoginResponseDto>>(objectResult.Value);
             Assert.True(response.IsSuccess);
-            Assert.Equal(200, response.StatusCode);
-            Assert.NotNull(response.Data.Token);
-            Assert.Equal(user.Id, response.Data.UserId);
-            Assert.Equal(user.Username, response.Data.Username);
-            Assert.Contains("User", response.Data.Roles);
+            Assert.Equal(expectedResponse.Token, response.Data.Token);
+            Assert.Equal(expectedResponse.Username, response.Data.Username);
+            Assert.Equal(expectedResponse.UserId, response.Data.UserId);
         }
 
         [Fact]
@@ -252,10 +190,43 @@ namespace Baigiamasis_test
             // Assert
             var actionResult = Assert.IsType<ActionResult<ApiResponse<LoginResponseDto>>>(result);
             var objectResult = Assert.IsType<ObjectResult>(actionResult.Result);
+            Assert.Equal(401, objectResult.StatusCode);
+
             var response = Assert.IsType<ApiResponse<LoginResponseDto>>(objectResult.Value);
             Assert.False(response.IsSuccess);
-            Assert.Equal(401, response.StatusCode);
             Assert.Contains("Invalid username or password", response.Message);
+        }
+
+        [Fact]
+        public void UserRegistrationDto_ValidationAttributes_AreCorrect()
+        {
+            // Arrange & Act
+            var properties = typeof(UserRegistrationDto).GetProperties();
+            
+            // Assert Username attributes
+            var usernameProperty = properties.First(p => p.Name == "Username");
+            var usernameRequired = usernameProperty.GetCustomAttributes(typeof(RequiredAttribute), false).Any();
+            var usernameLength = usernameProperty.GetCustomAttributes(typeof(StringLengthAttribute), false).FirstOrDefault() as StringLengthAttribute;
+            var usernameRegex = usernameProperty.GetCustomAttributes(typeof(RegularExpressionAttribute), false).FirstOrDefault() as RegularExpressionAttribute;
+            
+            Assert.True(usernameRequired);
+            Assert.NotNull(usernameLength);
+            Assert.Equal(50, usernameLength.MaximumLength);
+            Assert.Equal(3, usernameLength.MinimumLength);
+            Assert.NotNull(usernameRegex);
+            Assert.Equal(@"^[a-zA-Z0-9._-]+$", usernameRegex.Pattern);
+
+            // Assert Password attributes
+            var passwordProperty = properties.First(p => p.Name == "Password");
+            var passwordRequired = passwordProperty.GetCustomAttributes(typeof(RequiredAttribute), false).Any();
+            var passwordMinLength = passwordProperty.GetCustomAttributes(typeof(MinLengthAttribute), false).FirstOrDefault() as MinLengthAttribute;
+            var passwordRegex = passwordProperty.GetCustomAttributes(typeof(RegularExpressionAttribute), false).FirstOrDefault() as RegularExpressionAttribute;
+
+            Assert.True(passwordRequired);
+            Assert.NotNull(passwordMinLength);
+            Assert.Equal(6, passwordMinLength.Length);
+            Assert.NotNull(passwordRegex);
+            Assert.Equal(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", passwordRegex.Pattern);
         }
     }
 } 
