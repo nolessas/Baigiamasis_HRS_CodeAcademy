@@ -37,10 +37,7 @@
                         <input type="password"
                                placeholder="Password"
                                name="password"
-                               pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}"
-                               title="At least 6 characters, one uppercase, one lowercase, and one number"
                                required>
-                        <div class="password-strength"></div>
                         <div class="error-message"></div>
                     </div>
                     <button type="submit" class="submit-btn">Login</button>
@@ -67,6 +64,23 @@
                                title="At least 6 characters, one uppercase, one lowercase, and one number"
                                required>
                         <div class="password-strength"></div>
+                        <div class="password-requirements hidden">
+                            <p>Password must contain:</p>
+                            <ul>
+                                <li class="requirement" data-requirement="length">At least 6 characters</li>
+                                <li class="requirement" data-requirement="uppercase">One uppercase letter</li>
+                                <li class="requirement" data-requirement="lowercase">One lowercase letter</li>
+                                <li class="requirement" data-requirement="number">One number</li>
+                                <li class="requirement" data-requirement="special">One special character (recommended)</li>
+                            </ul>
+                        </div>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-field">
+                        <input type="password"
+                               placeholder="Confirm Password"
+                               name="confirmPassword"
+                               required>
                         <div class="error-message"></div>
                     </div>
                     <button type="submit" class="submit-btn">Register</button>

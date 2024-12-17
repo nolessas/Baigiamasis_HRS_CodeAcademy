@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const humanInfo = new HumanInfoService();
         humanInfo.displayUserInfo('userInfoContent');
     }
+    
+    initializePasswordStrength();
 });
 
 function initializeUIElements() {
@@ -34,7 +36,7 @@ function initializeUIElements() {
     if (humanInfoForm) humanInfoForm.addEventListener('submit', handleHumanInfoSubmit);
 }
 
-function updateUIBasedOnAuth() {
+async function updateUIBasedOnAuth() {
     const isAuth = authService.isAuthenticated();
     const isAdmin = authService.hasRole('Admin');
     
@@ -43,6 +45,7 @@ function updateUIBasedOnAuth() {
     const logoutBtn = document.getElementById('logoutBtn');
     const adminPanelBtn = document.getElementById('adminPanelBtn');
     const authForms = document.getElementById('authForms');
+    const logo = document.querySelector('.logo');
     
     if (isAuth) {
         // Hide auth buttons and forms
@@ -52,6 +55,21 @@ function updateUIBasedOnAuth() {
         
         // Show logout button
         logoutBtn.classList.remove('hidden');
+        
+        // Update greeting if user info exists
+        try {
+            const userId = localStorage.getItem('userId');
+            const humanInfo = new HumanInfoService();
+            const response = await humanInfo.getHumanInfo(userId);
+            
+            if (response.isSuccess && response.data) {
+                logo.textContent = `HRS | Hello, ${response.data.firstName}!`;
+            } else {
+                logo.textContent = 'HRS';
+            }
+        } catch (error) {
+            logo.textContent = 'HRS';
+        }
         
         if (isAdmin) {
             adminPanelBtn.classList.remove('hidden');
@@ -71,6 +89,9 @@ function updateUIBasedOnAuth() {
         // Hide logged-in user elements
         logoutBtn.classList.add('hidden');
         adminPanelBtn.classList.add('hidden');
+        
+        // Reset logo text
+        logo.textContent = 'HRS';
     }
 }
 
@@ -187,6 +208,18 @@ let isSubmitting = false;
 async function handleRegister(e) {
     e.preventDefault();
     
+    const password = e.target.querySelector('input[name="password"]').value;
+    const confirmPassword = e.target.querySelector('input[name="confirmPassword"]').value;
+    
+    // Check if passwords match
+    if (password !== confirmPassword) {
+        const confirmPasswordInput = e.target.querySelector('input[name="confirmPassword"]');
+        const errorDiv = confirmPasswordInput.nextElementSibling;
+        errorDiv.textContent = "Passwords do not match";
+        showMessage('Passwords do not match', 'error');
+        return;
+    }
+
     const validation = Validator.validateForm(e.target);
     if (!validation.isValid) {
         // Show specific error messages
@@ -202,7 +235,6 @@ async function handleRegister(e) {
     }
 
     const username = e.target.querySelector('input[name="username"]').value;
-    const password = e.target.querySelector('input[name="password"]').value;
 
     try {
         const response = await authService.signup(username, password);
@@ -214,7 +246,6 @@ async function handleRegister(e) {
             showMessage(response.message || 'Registration failed', 'error');
         }
     } catch (error) {
-        // Handle specific error messages
         const errorMessage = error.message.includes('Username already taken') 
             ? 'This username is already taken. Please choose another one.'
             : error.message || 'An error occurred during registration';
@@ -233,12 +264,19 @@ async function handleHumanInfoSubmit(e) {
         return;
     }
 
-    // Continue with form submission...
     const formData = new FormData(e.target);
     try {
         const response = await humanInfoService.createHumanInfo(formData);
         if (response.isSuccess) {
             showMessage('Information saved successfully!', 'success');
+            
+            // Update the greeting immediately
+            const logo = document.querySelector('.logo');
+            const firstName = formData.get('firstname');
+            if (firstName) {
+                logo.textContent = `HRS | Hello, ${firstName}!`;
+            }
+            
             await loadHumanInformation();
         } else {
             showMessage(response.message || 'Failed to save information', 'error');
@@ -249,6 +287,9 @@ async function handleHumanInfoSubmit(e) {
 }
 
 function handleLogout() {
+    // Reset logo text
+    document.querySelector('.logo').textContent = 'HRS';
+    
     authService.logout();
     // Reset forms to initial state
     document.getElementById('loginFormElement').reset();
@@ -478,10 +519,10 @@ function initializeFormValidation() {
         });
     });
 
-    // Add password strength indicator
-    const passwordInputs = document.querySelectorAll('input[type="password"]');
-    passwordInputs.forEach(input => {
-        input.addEventListener('input', function() {
+    // Add password strength indicator only for register form
+    const registerPasswordInput = document.querySelector('#registerFormElement input[name="password"]');
+    if (registerPasswordInput) {
+        registerPasswordInput.addEventListener('input', function() {
             const validation = Validator.validatePassword(this.value);
             const strengthDiv = this.nextElementSibling;
             if (strengthDiv && strengthDiv.classList.contains('password-strength')) {
@@ -490,7 +531,7 @@ function initializeFormValidation() {
                      validation.score <= 3 ? 'fair' : 'strong');
             }
         });
-    });
+    }
 }
 
 // Add this debug function
@@ -511,5 +552,50 @@ function reattachAdminPanelListener() {
     if (adminPanelBtn) {
         adminPanelBtn.removeEventListener('click', openAdminPanel);
         adminPanelBtn.addEventListener('click', openAdminPanel);
+    }
+}
+
+// Add this function to initialize password strength indicator
+function initializePasswordStrength() {
+    const passwordInput = document.querySelector('#registerFormElement input[name="password"]');
+    const requirementsDiv = document.querySelector('#registerFormElement .password-requirements');
+    
+    if (passwordInput && requirementsDiv) {
+        passwordInput.addEventListener('focus', () => {
+            requirementsDiv.classList.remove('hidden');
+        });
+
+        passwordInput.addEventListener('blur', () => {
+            if (!passwordInput.value) {
+                requirementsDiv.classList.add('hidden');
+            }
+        });
+
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            const requirements = {
+                length: password.length >= 6,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /\d/.test(password),
+                special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            };
+
+            // Update requirement indicators
+            Object.entries(requirements).forEach(([req, met]) => {
+                const element = requirementsDiv.querySelector(`[data-requirement="${req}"]`);
+                if (element) {
+                    element.classList.toggle('met', met);
+                }
+            });
+
+            // Update password strength indicator
+            const strengthDiv = this.nextElementSibling;
+            const score = Object.values(requirements).filter(Boolean).length;
+            
+            strengthDiv.className = 'password-strength ' + 
+                (score <= 2 ? 'weak' : 
+                 score <= 3 ? 'fair' : 'strong');
+        });
     }
 }

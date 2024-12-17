@@ -72,57 +72,6 @@ class Validator {
         return { isValid: true };
     }
 
-    static validatePassword(password) {
-        if (!password) {
-            return {
-                isValid: false,
-                score: 0,
-                message: 'Password is required'
-            };
-        }
-
-        let score = 0;
-        const hasMinLength = password.length >= 6;
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumbers = /\d/.test(password);
-        const hasSpecialChars = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-        if (hasMinLength) score++;
-        if (hasUpperCase) score++;
-        if (hasLowerCase) score++;
-        if (hasNumbers) score++;
-        if (hasSpecialChars) score++;
-
-        const isValid = hasMinLength && hasUpperCase && hasLowerCase && hasNumbers;
-
-        let message;
-        switch (score) {
-            case 0:
-            case 1:
-                message = 'Very Weak';
-                break;
-            case 2:
-                message = 'Weak';
-                break;
-            case 3:
-                message = 'Fair';
-                break;
-            case 4:
-                message = 'Strong';
-                break;
-            case 5:
-                message = 'Very Strong';
-                break;
-        }
-
-        return {
-            isValid,
-            score,
-            message
-        };
-    }
-
     static validateForm(formElement) {
         let isValid = true;
         const errors = {};
